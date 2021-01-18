@@ -60,7 +60,9 @@ class MetPXCloudPublisher:
             parent.logger.debug('Filepath: {}'.format(filepath))
             identifier = filepath.replace(parent.currentDir, '').lstrip('/')
 
-            if self.type == 'azure':
+            if self.type == 's3':
+                self.publish_to_azure(identifier, filepath)
+            elif self.type == 'azure':
                 self.publish_to_azure(identifier, filepath)
 
             return True
@@ -71,12 +73,47 @@ class MetPXCloudPublisher:
 
             return False
 
+    def publish_to_s3(self, parent, blob_identifier: str,
+                      filepath: str) -> bool:
+        """
+        s3 object publisher
+
+        :param parent: `sarra.sr_subscribe.sr_subscribe`
+        :param blob_identifier: `str` of blob id
+        :param filepath: `str` of local filepath to upload
+
+        :returns: `bool` of dispatch result
+        """
+
+        import boto3
+        from botocore.exceptions import ClientError
+
+        s3_url = os.environ.get('S3_URL')
+        s3_bucket_name = os.environ.get('S3_BUCKET_NAME')
+
+        s3_client = boto3.client('s3', endpoint_url=s3_url)
+
+        url = os.path.normpath(os.path.join(
+             s3_client.meta.endpoint_url, s3_bucket_name, blob_identifier))
+
+        try:
+            with open(filepath, 'rb') as data:
+                s3_client.upload_fileobj(data, s3_bucket_name, blob_identifier)
+                self.LOGGER.info('published to {}'.format(url))
+                parent.msg.notice = url
+        except ClientError as err:
+            self.LOGGER.error(err)
+            return False
+
+        return True
+
     def publish_to_azure(self, parent, blob_identifier: str,
                          filepath: str) -> bool:
         """
         Azure blob file publisher
 
-        :param blog_identifier: `str` of blob id
+        :param parent: `sarra.sr_subscribe.sr_subscribe`
+        :param blob_identifier: `str` of blob id
         :param filepath: `str` of local filepath to upload
 
         :returns: `bool` of dispatch result

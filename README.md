@@ -2,7 +2,12 @@
 
 ## Overview
 
-MetPX-Sarracenia plugin for publishing data to the cloud
+MetPX-Sarracenia plugin for publishing data to cloud environments.
+
+## Currently supported cloud object storage services
+
+- S3
+- Azure Blob Storage
 
 ## Installation
 
@@ -29,7 +34,7 @@ pip3 install -r requirements.txt
 
 # configure environment
 cp metpx-cloud-publisher.env dev.env
-vi dev.env  # update Azure credentials and path to MetPX filter
+vi dev.env  # update S3 or Azure credentials and path to MetPX filter
 . dev.env
 
 vi metpx-cloud-publisher.conf  # adjust on_file path and desired subtopics
