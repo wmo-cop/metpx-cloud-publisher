@@ -61,7 +61,7 @@ class MetPXCloudPublisher:
             identifier = filepath.replace(parent.currentDir, '').lstrip('/')
 
             if self.type == 's3':
-                self.publish_to_azure(identifier, filepath)
+                self.publish_to_s3(identifier, filepath)
             elif self.type == 'azure':
                 self.publish_to_azure(identifier, filepath)
 
